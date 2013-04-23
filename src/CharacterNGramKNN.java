@@ -1,16 +1,6 @@
 import java.io.*;
 import java.util.ArrayList;
 
-class CTuple {
-	String rating;
-	String review;
-	
-	CTuple(String rating, String review) {
-		this.rating = rating;
-		this.review = review;
-	}
-}
-
 public class CharacterNGramKNN {
 	public static int N = 2;
 	public static int K = 3;
@@ -19,11 +9,10 @@ public class CharacterNGramKNN {
 		int lastIndex = 0;
 		int count = 0;
 
-		while(lastIndex != -1){
+		while(lastIndex != -1) {
+			   lastIndex = str.indexOf(findStr,lastIndex);
 
-		       lastIndex = str.indexOf(findStr,lastIndex);
-
-		       if( lastIndex != -1){
+		       if( lastIndex != -1) {
 		             count ++;
 		             lastIndex+=findStr.length();
 		      }
@@ -37,12 +26,13 @@ public class CharacterNGramKNN {
 			BufferedReader br = new BufferedReader(new FileReader("training_file"));
 			String line="";
 			
-			ArrayList<CTuple> dictionary = new ArrayList<CTuple>();
+			ArrayList<Tuple> dictionary = new ArrayList<Tuple>();
 			String[] parts;
 			while((line=br.readLine()) != null) {
 				parts = line.split(";");
 				parts[1] = parts[1].replaceAll("\"", "").toLowerCase();
-				CTuple t = new CTuple(parts[0],parts[1]);
+				parts[1] = parts[1].replaceAll(" ", "");
+				Tuple t = new Tuple(parts[0],parts[1]);
 				dictionary.add(t);
 			}
 			br.close();
@@ -66,18 +56,18 @@ public class CharacterNGramKNN {
 			while((line=brt.readLine()) != null) {
 				review = line.substring(line.indexOf(';')+1);
 				review = review.replace("\"", "").toLowerCase();
+				review = review.replaceAll(" ", "");
 				
-				words = review.split(" ");
-				ngrams = new String[words.length];
-				for(i=0;i<words.length;i+=N) {
-					ngram = words[i];
+				ngrams = new String[review.length()];
+				for(i=0;i<ngrams.length;i+=N) {
+					ngram = review.charAt(i)+"";
 					for(j=0;j<N;j++) {
-						ngram += " " + words[j];
+						ngram += "" + review.charAt(j);
 					}
 					ngrams[i] = ngram;
 				}
 				k_cnt = 0;
-				for(CTuple t : dictionary) {
+				for(Tuple t : dictionary) {
 					cnt = 0;
 					for(kk=0;kk<ngrams.length;kk++) {
 						if(ngrams[kk] != null) {
@@ -87,6 +77,7 @@ public class CharacterNGramKNN {
 						}						
 					}
 					if( cnt > 0 ) {
+						System.out.println(t.rating);
 						if(k_cnt == K) {
 							jj = 0;
 							for(ii=1;ii<K;ii++) {
