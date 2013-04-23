@@ -12,7 +12,7 @@ class Tuple {
 }
 
 public class KNN {
-	public static int N = 1;
+	public static int N = 2;
 	public static int K = 3;
 	
 	static int FindSubStrCount(String str,String findStr) {
@@ -54,9 +54,10 @@ public class KNN {
 			String[] val = new String[K];
 			String[] words;
 			String ngram;
+			String[] ngrams;
 			int cnt;
 			int i,j;
-			int ii,jj;
+			int ii,jj,kk;
 			int zvotes,ovotes;
 			int k_cnt;
 			
@@ -67,49 +68,60 @@ public class KNN {
 				review = review.replace("\"", "").toLowerCase();
 				
 				words = review.split(" ");
+				ngrams = new String[words.length];
 				for(i=0;i<words.length;i+=N) {
 					ngram = words[i];
 					for(j=0;j<N;j++) {
 						ngram += " " + words[j];
 					}
-					k_cnt = 0;
-					for(Tuple t : dictionary) {
-						if( (cnt = FindSubStrCount(t.review, ngram)) > 0 ) {
-							if(k_cnt == K) {
-								jj = 0;
-								for(ii=1;ii<K;ii++) {
-									if(max[ii] < max[jj]) {
-										jj = ii;
-									}
-								}
-								if(max[jj] < cnt) {
-									max[jj] = cnt;
-									val[jj] = t.rating;
-								}
-							} else {
-								max[k_cnt] = cnt;
-								val[k_cnt] = t.rating;
-								k_cnt++;
+					ngrams[i] = ngram;
+				}
+				k_cnt = 0;
+				for(Tuple t : dictionary) {
+					cnt = 0;
+					for(kk=0;kk<ngrams.length;kk++) {
+						if(ngrams[kk] != null) {
+							if(t.review.contains(ngrams[kk])) {
+								cnt++;
 							}
-						}
+						}						
 					}
-					zvotes = 0;
-					ovotes = 0;
-					for(ii=0;ii<K;ii++) {
-						if(val[ii].equals("0")) { 
-							zvotes++;
+					if( cnt > 0 ) {
+						if(k_cnt == K) {
+							jj = 0;
+							for(ii=1;ii<K;ii++) {
+								if(max[ii] < max[jj]) {
+									jj = ii;
+								}
+							}
+							if(max[jj] < cnt) {
+								max[jj] = cnt;
+								val[jj] = t.rating;
+							}
+						} else {
+							max[k_cnt] = cnt;
+							val[k_cnt] = t.rating;
+							k_cnt++;
 						}
-						else { 
-							ovotes++;
-						}
-					}
-					if(ovotes > zvotes) {
-						System.out.println("1");
-					} else {
-						System.out.println("0");
 					}
 				}
+				zvotes = 0;
+				ovotes = 0;
+				for(ii=0;ii<K;ii++) {
+					if(val[ii].equals("0")) { 
+						zvotes++;
+					}
+					else { 
+						ovotes++;
+					}
+				}
+				if(ovotes > zvotes) {
+					System.out.println("1");
+				} else {
+					System.out.println("0");
+				}
 			}
+			
 			brt.close();			
 		} catch(Exception e) {
 			e.printStackTrace();
