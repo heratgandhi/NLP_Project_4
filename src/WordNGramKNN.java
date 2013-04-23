@@ -11,7 +11,7 @@ class Tuple {
 	}
 }
 
-public class KNN {
+public class WordNGramKNN {
 	public static int N = 2;
 	public static int K = 3;
 	
