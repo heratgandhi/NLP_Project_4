@@ -1,16 +1,6 @@
 import java.io.*;
 import java.util.ArrayList;
 
-class Tuple {
-	String rating;
-	String review;
-	
-	Tuple(String rating, String review) {
-		this.rating = rating;
-		this.review = review;
-	}
-}
-
 public class WordNGramKNN {
 	public static int N = 2;
 	public static int K = 3;
