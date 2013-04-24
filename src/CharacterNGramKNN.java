@@ -2,17 +2,18 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class CharacterNGramKNN {
-	public static int N = 2;
+	public static int N = 4;
 	public static int K = 3;
 	
 	static int FindSubStrCount(String str,String findStr) {
 		int lastIndex = 0;
 		int count = 0;
 
-		while(lastIndex != -1) {
-			   lastIndex = str.indexOf(findStr,lastIndex);
+		while(lastIndex != -1){
 
-		       if( lastIndex != -1) {
+		       lastIndex = str.indexOf(findStr,lastIndex);
+
+		       if( lastIndex != -1){
 		             count ++;
 		             lastIndex+=findStr.length();
 		      }
@@ -31,7 +32,6 @@ public class CharacterNGramKNN {
 			while((line=br.readLine()) != null) {
 				parts = line.split(";");
 				parts[1] = parts[1].replaceAll("\"", "").toLowerCase();
-				parts[1] = parts[1].replaceAll(" ", "");
 				Tuple t = new Tuple(parts[0],parts[1]);
 				dictionary.add(t);
 			}
@@ -43,10 +43,10 @@ public class CharacterNGramKNN {
 			int[] max = new int[K];
 			String[] val = new String[K];
 			String[] words;
-			String ngram;
-			String[] ngrams;
+			String ngram = "";
+			ArrayList<String> ngrams;
 			int cnt;
-			int i,j;
+			int i,j,l;
 			int ii,jj,kk;
 			int zvotes,ovotes;
 			int k_cnt;
@@ -56,28 +56,29 @@ public class CharacterNGramKNN {
 			while((line=brt.readLine()) != null) {
 				review = line.substring(line.indexOf(';')+1);
 				review = review.replace("\"", "").toLowerCase();
-				review = review.replaceAll(" ", "");
 				
-				ngrams = new String[review.length()];
-				for(i=0;i<ngrams.length;i+=N) {
-					ngram = review.charAt(i)+"";
-					for(j=0;j<N;j++) {
-						ngram += "" + review.charAt(j);
-					}
-					ngrams[i] = ngram;
+				words = review.split(" ");
+				ngrams = new ArrayList<String>();
+				for(i=0;i<words.length;i++) {
+					for(l=0 ; l <= words[i].length()-N ; l++) {
+						ngram = "";
+						for(j=l;j<N;j++) {
+							ngram += "" + words[i].charAt(j);
+						}
+						if(ngram.trim() != "") {
+							ngrams.add(ngram);
+						}
+					}					
 				}
 				k_cnt = 0;
 				for(Tuple t : dictionary) {
 					cnt = 0;
-					for(kk=0;kk<ngrams.length;kk++) {
-						if(ngrams[kk] != null) {
-							if(t.review.contains(ngrams[kk])) {
-								cnt++;
-							}
-						}						
+					for(kk=0;kk<ngrams.size();kk++) {
+						if(t.review.contains(ngrams.get(kk))) {
+							cnt++;
+						}												
 					}
 					if( cnt > 0 ) {
-						System.out.println(t.rating);
 						if(k_cnt == K) {
 							jj = 0;
 							for(ii=1;ii<K;ii++) {
