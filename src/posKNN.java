@@ -74,7 +74,6 @@ public class posKNN {
 
 		while(tokenizer.hasMoreTokens()){
 			token = tokenizer.nextToken();
-			//tag = token.split("/")[1];
 			tag = token.substring(token.indexOf("/") + 1);
 
 			if(tag.contains("JJ"))
