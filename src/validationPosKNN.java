@@ -7,52 +7,60 @@ import java.util.StringTokenizer;
 
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
-public class posKNN {
+public class validationPosKNN {
 
 	public static int K = 3;
 	private MaxentTagger tagger;
-	private String sample, tagged, token, tag, review;
+	private String sample, tagged, token, tag, review, rating, actualRating;
 	private FileInputStream fstream;
 	private DataInputStream in;
 	private BufferedReader br;
-	private HashMap<String, posData> trainingMap, testingMap;
-	private String[] parts;
+	private HashMap<String, posData> trainingMap, validationMap;
 	private posData posDataObj, tempObj, trainingObj;
 	private StringTokenizer tokenizer;
 	private int verbCount, adverbCount, adjectiveCount, trainingVerbCount, 
 	trainingAdverbCount, trainingAdjectiveCount;
 	private double distance;
 	private HashMap<posData, Double> distanceMap;
+	private double numerator, denominator;
 
-	public posKNN(){
+	public validationPosKNN(){
 		tagger = new MaxentTagger("taggers/english-left3words-distsim.tagger");
 		trainingMap = new HashMap<String, posData>();
-		testingMap = new HashMap<String, posData>();
+		validationMap = new HashMap<String, posData>();
+		numerator = 0;
+		denominator = 0;
+		
 		tag();
 	}
 
 	private void tag(){
 
 		trainModel();
-		testModel();
-		processTestData();
+		validationModel();
+		processValidationData();
 	}
 
 	private void trainModel(){
 
 		try {
-			fstream = new FileInputStream("my_training_file");
+			fstream = new FileInputStream("Train data");
 
 			in = new DataInputStream(fstream);
 			br = new BufferedReader(new InputStreamReader(in));
 
-			while((sample=br.readLine()) != null) {
-				parts = sample.split(";");
-				parts[1] = parts[1].replaceAll("\"", "").toLowerCase();
-				tagged = tagger.tagString(sample);
+			br.readLine();
 
-				posDataObj = processTags(tagged, parts[0], parts[1]);
-				trainingMap.put(parts[1], posDataObj);
+			while((sample=br.readLine()) != null) {
+				rating = sample.substring(0,1);
+				review = sample.substring(4);
+				tagged = tagger.tagString(review);
+
+				//System.out.println("Review: " + review);
+				//System.out.println("Tagged: " + tagged);
+				
+				posDataObj = processTags(tagged, rating, review);
+				trainingMap.put(review, posDataObj);
 			}
 
 			br.close();
@@ -85,23 +93,28 @@ public class posKNN {
 		return tempObj;
 	}
 
-	private void testModel(){
+	private void validationModel(){
 
 		try {
-			fstream = new FileInputStream("my_test_file");
+			fstream = new FileInputStream("Validation data");
 
 			in = new DataInputStream(fstream);
 			br = new BufferedReader(new InputStreamReader(in));
 
+			br.readLine();
+
 			while((sample=br.readLine()) != null) {
 
-				review = sample.substring(sample.indexOf(';')+1);
-				review = review.replace("\"", "").toLowerCase();
-
+				rating = sample.substring(0,1);
+				review = sample.substring(4);
 				tagged = tagger.tagString(review);
+				
+				//System.out.println("Review: " + review);
+				//System.out.println("Tagged: " + tagged);
 
-				posDataObj = processTags(tagged, "", review);
-				testingMap.put(review, posDataObj);
+				posDataObj = processTags(tagged, rating, review);
+				validationMap.put(review, posDataObj);
+
 			}
 
 			br.close();
@@ -115,25 +128,35 @@ public class posKNN {
 
 	}
 
-	private void processTestData(){
+	private void processValidationData(){
 
-		posData testPosDataObj;
+		posData validationPosDataObj;
 		String rating;
 		int counter = 0;
 
-		for(Entry<String, posData> testEntry : testingMap.entrySet()){
+		for(Entry<String, posData> testEntry : validationMap.entrySet()){
 
-			testPosDataObj = testEntry.getValue();
-			rating = computeKNN(testPosDataObj);
-
-			System.out.println("Review: " + testPosDataObj.getReview());
+			validationPosDataObj = testEntry.getValue();
+			rating = computeKNN(validationPosDataObj);
+			actualRating = validationPosDataObj.getRating();
+			
+			System.out.println("Review: " + validationPosDataObj.getReview());
 			System.out.println("Rating: " + rating);
+			System.out.println("Actual Rating: " + actualRating);
 			System.out.println();
 			counter++;
+			
+			if(actualRating.equals(rating))
+				numerator++;
+			
+			denominator++;
 
 		}//end testing for loop
-		
+
 		System.out.println("Review count: " + counter);
+		System.out.println("Numerator: " + numerator);
+		System.out.println("Denominator: " + denominator);
+		System.out.println("Accuracy: " + (numerator/denominator));
 	}
 
 	private String computeKNN(posData testPosDataObj){
@@ -213,6 +236,6 @@ public class posKNN {
 
 	public static void main(String[] args){
 
-		posKNN knn = new posKNN();
+		validationPosKNN knn = new validationPosKNN();
 	}
 }
