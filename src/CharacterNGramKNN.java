@@ -34,7 +34,7 @@ class CharNGramsTuple extends Tuple {
 }
 
 public class CharacterNGramKNN {
-	public static int N = 4;
+	public static int N = 3;
 	public static int K = 3;
 	
 	public static void main(String[] args) {

@@ -30,7 +30,7 @@ class NGramsTuple extends Tuple {
 }
 
 public class WordNGramKNN {
-	public static int N = 2;
+	public static int N = 3;
 	public static int K = 3;
 	
 	public static void main(String[] args) {
