@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
-public class validationPosKNN {
+public class testPosKNN {
 
 	public static int K = 3;
 	private MaxentTagger tagger;
@@ -15,7 +15,7 @@ public class validationPosKNN {
 	private FileInputStream fstream;
 	private DataInputStream in;
 	private BufferedReader br;
-	private HashMap<String, posData> trainingMap, validationMap;
+	private HashMap<String, posData> trainingMap, testMap;
 	private posData posDataObj, tempObj, trainingObj;
 	private StringTokenizer tokenizer;
 	private int verbCount, adverbCount, adjectiveCount, trainingVerbCount, 
@@ -25,10 +25,10 @@ public class validationPosKNN {
 	private double numerator, denominator;
 	private FileWriter fw;
 
-	public validationPosKNN(){
+	public testPosKNN(){
 		tagger = new MaxentTagger("taggers/english-left3words-distsim.tagger");
 		trainingMap = new HashMap<String, posData>();
-		validationMap = new HashMap<String, posData>();
+		testMap = new HashMap<String, posData>();
 		numerator = 0;
 		denominator = 0;
 		readTrainingCount = 0;
@@ -40,12 +40,12 @@ public class validationPosKNN {
 	private void tag(){
 
 		trainModel();
-		validationModel();
+		testModel();
 		//processValidationData();
 		
-		System.out.println("Numerator: " + numerator);
-		System.out.println("Denominator: " + denominator);
-		System.out.println("Accuracy: " + (numerator/denominator));
+//		System.out.println("Numerator: " + numerator);
+//		System.out.println("Denominator: " + denominator);
+//		System.out.println("Accuracy: " + (numerator/denominator));
 
 	}
 
@@ -100,17 +100,19 @@ public class validationPosKNN {
 		return tempObj;
 	}
 
-	private void validationModel(){
+	private void testModel(){
 
 		try {
-			fstream = new FileInputStream("validationd");
+			fstream = new FileInputStream("testd");
 			in = new DataInputStream(fstream);
 			br = new BufferedReader(new InputStreamReader(in));
 			fw = new FileWriter("posTags.txt");
 
+			actualRating = "";
+			
 			while((sample=br.readLine()) != null) {
 
-				actualRating = sample.substring(0,1);
+//				actualRating = sample.substring(0,1);
 				review = sample.substring(4);
 				tagged = tagger.tagString(review);
 				
@@ -118,16 +120,16 @@ public class validationPosKNN {
 				//System.out.println("Tagged: " + tagged);
 
 				posDataObj = processTags(tagged, actualRating, review);
-				validationMap.put(review, posDataObj);
-				readValidationCount++;
+				testMap.put(review, posDataObj);
+				//readValidationCount++;
 
 				rating = computeKNN(posDataObj);
 				fw.write(rating + "\n");
 				
-				if(actualRating.equals(rating))
-					numerator++;
-				
-				denominator++;
+//				if(actualRating.equals(rating))
+//					numerator++;
+//				
+//				denominator++;
 				
 			}
 
@@ -144,18 +146,18 @@ public class validationPosKNN {
 
 	}
 
-	private void processValidationData(){
+	private void processTestData(){
 
-		posData validationPosDataObj;
+		posData testPosDataObj;
 		String rating;
 
-		for(Entry<String, posData> testEntry : validationMap.entrySet()){
+		for(Entry<String, posData> testEntry : testMap.entrySet()){
 
-			validationPosDataObj = testEntry.getValue();
-			rating = computeKNN(validationPosDataObj);
-			actualRating = validationPosDataObj.getRating();
+			testPosDataObj = testEntry.getValue();
+			rating = computeKNN(testPosDataObj);
+			actualRating = testPosDataObj.getRating();
 			
-			System.out.println("Review: " + validationPosDataObj.getReview());
+			System.out.println("Review: " + testPosDataObj.getReview());
 			System.out.println("Rating: " + rating);
 			System.out.println("Actual Rating: " + actualRating);
 			System.out.println();
@@ -167,7 +169,7 @@ public class validationPosKNN {
 
 		}//end testing for loop
 
-		System.out.println("Review count: " + validationMap.size());
+		System.out.println("Review count: " + testMap.size());
 		System.out.println("Numerator: " + numerator);
 		System.out.println("Denominator: " + denominator);
 		System.out.println("Accuracy: " + (numerator/denominator));
@@ -254,6 +256,6 @@ public class validationPosKNN {
 
 	public static void main(String[] args){
 
-		validationPosKNN knn = new validationPosKNN();
+		testPosKNN knn = new testPosKNN();
 	}
 }
