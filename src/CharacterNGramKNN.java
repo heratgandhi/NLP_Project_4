@@ -64,6 +64,8 @@ public class CharacterNGramKNN {
 			}*/
 			//Testing Portion
 			BufferedReader brt = new BufferedReader(new FileReader("testd"));
+			BufferedWriter bwt = new BufferedWriter(new FileWriter("charncount_output"));
+			
 			String review = "";
 			double[] max = new double[K];
 			String[] val = new String[K];
@@ -158,12 +160,14 @@ public class CharacterNGramKNN {
 					}
 				}
 				if(ovotes > zvotes) {
+					bwt.write("1\n");
 					System.out.println("1");
 				} else {
+					bwt.write("0\n");
 					System.out.println("0");
 				}
 			}
-			
+			bwt.close();
 			brt.close();
 		} catch(Exception e) {
 			e.printStackTrace();

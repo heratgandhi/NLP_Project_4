@@ -52,6 +52,8 @@ public class WordNGramKNN {
 			
 			//Testing Portion
 			BufferedReader brt = new BufferedReader(new FileReader("testd"));
+			BufferedWriter bwt = new BufferedWriter(new FileWriter("wordncount_output"));
+			
 			String review = "";
 			double[] max = new double[K];
 			String[] val = new String[K];
@@ -132,11 +134,13 @@ public class WordNGramKNN {
 				}
 				if(ovotes > zvotes) {
 					System.out.println("1");
+					bwt.write("1\n");
 				} else {
 					System.out.println("0");
+					bwt.write("0\n");
 				}
 			}
-			
+			bwt.close();
 			brt.close();			
 		} catch(Exception e) {
 			e.printStackTrace();
