@@ -1,106 +1,156 @@
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
+
+class CharNGramsTuple extends Tuple {
+
+	Hashtable<String,Integer> ngrams_hash;
+	
+	CharNGramsTuple(String rating, String review) {
+		super(rating, review);
+		
+		//put ngrams with counter in the hashtable
+		String[] words;
+		String ngram;
+		words = review.split(" ");
+		ngrams_hash = new Hashtable<String, Integer>();
+		for(int i=0;i<words.length;i++) {
+			for(int l=0 ; l <= words[i].length()-CharacterNGramKNN.N ; l++) {
+				ngram = "";
+				for(int j=l ;j < l+CharacterNGramKNN.N ; j++) {
+					ngram += "" + words[i].charAt(j);
+				}
+				if(ngram.trim() != "" && ngram.length() == CharacterNGramKNN.N) {
+					if(ngrams_hash.get(ngram) == null) {
+						ngrams_hash.put(ngram, 1);
+					} else {
+						ngrams_hash.put(ngram, ngrams_hash.get(ngram)+1);
+					}
+				}
+			}					
+		}
+		// TODO Auto-generated constructor stub
+	}
+	
+}
 
 public class CharacterNGramKNN {
 	public static int N = 4;
 	public static int K = 3;
 	
-	static int FindSubStrCount(String str,String findStr) {
-		int lastIndex = 0;
-		int count = 0;
-
-		while(lastIndex != -1){
-
-		       lastIndex = str.indexOf(findStr,lastIndex);
-
-		       if( lastIndex != -1){
-		             count ++;
-		             lastIndex+=findStr.length();
-		      }
-		}
-		return count;
-	}
-		
 	public static void main(String[] args) {
 		try {
 			//Training Portion
-			BufferedReader br = new BufferedReader(new FileReader("training_file"));
+			BufferedReader br = new BufferedReader(new FileReader("traind"));
 			String line="";
 			
-			ArrayList<Tuple> dictionary = new ArrayList<Tuple>();
+			ArrayList<CharNGramsTuple> dictionary = new ArrayList<CharNGramsTuple>();
 			String[] parts;
+			CharNGramsTuple ti;
 			while((line=br.readLine()) != null) {
-				parts = line.split(";");
-				parts[1] = parts[1].replaceAll("\"", "").toLowerCase();
-				Tuple t = new Tuple(parts[0],parts[1]);
-				dictionary.add(t);
+				parts = line.split(",");
+				parts[2] = parts[2].replaceAll("\"", "").toLowerCase();
+				ti = new CharNGramsTuple(parts[0],parts[2]);
+				dictionary.add(ti);
 			}
 			br.close();
 			
+			/*for(CharNGramsTuple t : dictionary) {
+				Enumeration<String> enumKey = t.ngrams_hash.keys();
+				while(enumKey.hasMoreElements()) {
+				    String key = enumKey.nextElement();
+				    Integer value = t.ngrams_hash.get(key);
+				    System.out.println(key+" "+value);
+				}
+			}*/
 			//Testing Portion
-			BufferedReader brt = new BufferedReader(new FileReader("test_file"));
+			BufferedReader brt = new BufferedReader(new FileReader("testd"));
 			String review = "";
-			int[] max = new int[K];
+			double[] max = new double[K];
 			String[] val = new String[K];
 			String[] words;
-			String ngram = "";
-			ArrayList<String> ngrams;
-			int cnt;
+			String ngram;
+			Hashtable<String,Integer> test_dict;
+			double distance = 0;
 			int i,j,l;
-			int ii,jj,kk;
+			int ii,jj;
 			int zvotes,ovotes;
 			int k_cnt;
 			
 			for(ii=0;ii<K;ii++) val[ii] = "";
 
 			while((line=brt.readLine()) != null) {
-				review = line.substring(line.indexOf(';')+1);
+				review = line.split(",")[2];
+				//review = line.substring(line.indexOf(';')+1);
 				review = review.replace("\"", "").toLowerCase();
 				
+				test_dict = new Hashtable<String, Integer>();
 				words = review.split(" ");
-				ngrams = new ArrayList<String>();
+				/*for(i=0;i<words.length;i++) {
+					ngram = words[i];
+					for(j=1;j<N && (i+j) < words.length;j++) {
+						ngram += " " + words[i+j];
+					}
+					if(test_dict.get(ngram) == null) {
+						test_dict.put(ngram, 1);
+					} else {
+						test_dict.put(ngram, test_dict.get(ngram)+1);
+					}			
+				}*/
 				for(i=0;i<words.length;i++) {
-					for(l=0 ; l <= words[i].length()-N ; l++) {
+					for(l=0 ; l <= words[i].length()-CharacterNGramKNN.N ; l++) {
 						ngram = "";
-						for(j=l;j<N;j++) {
+						for(j=l ;j < l+CharacterNGramKNN.N ; j++) {
 							ngram += "" + words[i].charAt(j);
 						}
-						if(ngram.trim() != "") {
-							ngrams.add(ngram);
+						if(ngram.trim() != "" && ngram.length() == CharacterNGramKNN.N) {
+							if(test_dict.get(ngram) == null) {
+								test_dict.put(ngram, 1);
+							} else {
+								test_dict.put(ngram, test_dict.get(ngram)+1);
+							}
 						}
-					}					
+					}
 				}
+				
 				k_cnt = 0;
-				for(Tuple t : dictionary) {
-					cnt = 0;
-					for(kk=0;kk<ngrams.size();kk++) {
-						if(t.review.contains(ngrams.get(kk))) {
-							cnt++;
-						}												
+				for(CharNGramsTuple t : dictionary) {
+					distance = 0;
+					
+					Enumeration<String> enumKey = test_dict.keys();
+					while(enumKey.hasMoreElements()) {
+					    String key = enumKey.nextElement();
+					    Integer value = test_dict.get(key);
+					    if(t.ngrams_hash.get(key) != null) {
+					    	distance += Math.pow(value - t.ngrams_hash.get(key), 2);
+					    } else {
+					    	distance += Math.pow(value, 2);
+					    }
 					}
-					if( cnt > 0 ) {
-						if(k_cnt == K) {
-							jj = 0;
-							for(ii=1;ii<K;ii++) {
-								if(max[ii] < max[jj]) {
-									jj = ii;
-								}
+					distance = Math.sqrt(distance);
+					
+					//System.out.println(distance);
+					
+					if(k_cnt == K) {
+						jj = 0;
+						for(ii=1;ii<K;ii++) {
+							if(max[ii] > max[jj]) {
+								jj = ii;
 							}
-							if(max[jj] < cnt) {
-								max[jj] = cnt;
-								val[jj] = t.rating;
-							}
-						} else {
-							max[k_cnt] = cnt;
-							val[k_cnt] = t.rating;
-							k_cnt++;
 						}
-					}
+						if(max[jj] > distance) {
+							max[jj] = distance;
+							val[jj] = t.rating;
+						}
+					} else {
+						max[k_cnt] = distance;
+						val[k_cnt] = t.rating;
+						k_cnt++;
+					}					
 				}
 				zvotes = 0;
 				ovotes = 0;
 				for(ii=0;ii<K;ii++) {
-					if(val[ii].equals("0")) { 
+					if(val[ii].equals("0") || val[ii].equals("")) { 
 						zvotes++;
 					}
 					else { 
@@ -114,7 +164,7 @@ public class CharacterNGramKNN {
 				}
 			}
 			
-			brt.close();			
+			brt.close();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
