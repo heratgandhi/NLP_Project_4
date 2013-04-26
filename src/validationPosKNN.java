@@ -19,7 +19,7 @@ public class validationPosKNN {
 	private posData posDataObj, tempObj, trainingObj;
 	private StringTokenizer tokenizer;
 	private int verbCount, adverbCount, adjectiveCount, trainingVerbCount, 
-	trainingAdverbCount, trainingAdjectiveCount, readTrainingCount, readValidationCount;
+	trainingAdverbCount, trainingAdjectiveCount;
 	private double distance;
 	private HashMap<posData, Double> distanceMap;
 	private double numerator, denominator;
@@ -31,8 +31,6 @@ public class validationPosKNN {
 		validationMap = new HashMap<String, posData>();
 		numerator = 0;
 		denominator = 0;
-		readTrainingCount = 0;
-		readValidationCount = 0;
 		
 		tag();
 	}
@@ -41,7 +39,6 @@ public class validationPosKNN {
 
 		trainModel();
 		validationModel();
-		//processValidationData();
 		
 		System.out.println("Numerator: " + numerator);
 		System.out.println("Denominator: " + denominator);
@@ -66,8 +63,7 @@ public class validationPosKNN {
 				
 				posDataObj = processTags(tagged, rating, review);
 				trainingMap.put(review, posDataObj);
-				
-				readTrainingCount++;
+	
 			}
 
 			br.close();
@@ -113,13 +109,9 @@ public class validationPosKNN {
 				actualRating = sample.substring(0,1);
 				review = sample.substring(4);
 				tagged = tagger.tagString(review);
-				
-				//System.out.println("Review: " + review);
-				//System.out.println("Tagged: " + tagged);
 
 				posDataObj = processTags(tagged, actualRating, review);
 				validationMap.put(review, posDataObj);
-				readValidationCount++;
 
 				rating = computeKNN(posDataObj);
 				fw.write(rating + "\n");
@@ -144,38 +136,6 @@ public class validationPosKNN {
 
 	}
 
-	private void processValidationData(){
-
-		posData validationPosDataObj;
-		String rating;
-
-		for(Entry<String, posData> testEntry : validationMap.entrySet()){
-
-			validationPosDataObj = testEntry.getValue();
-			rating = computeKNN(validationPosDataObj);
-			actualRating = validationPosDataObj.getRating();
-			
-			System.out.println("Review: " + validationPosDataObj.getReview());
-			System.out.println("Rating: " + rating);
-			System.out.println("Actual Rating: " + actualRating);
-			System.out.println();
-			
-			if(actualRating.equals(rating))
-				numerator++;
-			
-			denominator++;
-
-		}//end testing for loop
-
-		System.out.println("Review count: " + validationMap.size());
-		System.out.println("Numerator: " + numerator);
-		System.out.println("Denominator: " + denominator);
-		System.out.println("Accuracy: " + (numerator/denominator));
-		
-//		System.out.println("ReadTrainingCount: " + readTrainingCount);
-//		System.out.println("ReadValidationCount: " + readValidationCount);
-//		System.out.println("trainingMapSize: " + trainingMap.size());
-	}
 
 	private String computeKNN(posData testPosDataObj){
 

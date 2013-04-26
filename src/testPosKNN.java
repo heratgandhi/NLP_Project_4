@@ -33,7 +33,7 @@ public class testPosKNN {
 		denominator = 0;
 		readTrainingCount = 0;
 		readValidationCount = 0;
-		
+
 		tag();
 	}
 
@@ -41,11 +41,6 @@ public class testPosKNN {
 
 		trainModel();
 		testModel();
-		//processValidationData();
-		
-//		System.out.println("Numerator: " + numerator);
-//		System.out.println("Denominator: " + denominator);
-//		System.out.println("Accuracy: " + (numerator/denominator));
 
 	}
 
@@ -61,12 +56,9 @@ public class testPosKNN {
 				review = sample.substring(4);
 				tagged = tagger.tagString(review);
 
-				//System.out.println("Review: " + review);
-				//System.out.println("Tagged: " + tagged);
-				
 				posDataObj = processTags(tagged, rating, review);
 				trainingMap.put(review, posDataObj);
-				
+
 				readTrainingCount++;
 			}
 
@@ -109,33 +101,23 @@ public class testPosKNN {
 			fw = new FileWriter("posTags.txt");
 
 			actualRating = "";
-			
+
 			while((sample=br.readLine()) != null) {
 
-//				actualRating = sample.substring(0,1);
 				review = sample.substring(4);
 				tagged = tagger.tagString(review);
-				
-				//System.out.println("Review: " + review);
-				//System.out.println("Tagged: " + tagged);
 
 				posDataObj = processTags(tagged, actualRating, review);
 				testMap.put(review, posDataObj);
-				//readValidationCount++;
 
 				rating = computeKNN(posDataObj);
 				fw.write(rating + "\n");
-				
-//				if(actualRating.equals(rating))
-//					numerator++;
-//				
-//				denominator++;
-				
+
 			}
 
 			br.close();
 			fw.close();
-			
+
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -156,15 +138,15 @@ public class testPosKNN {
 			testPosDataObj = testEntry.getValue();
 			rating = computeKNN(testPosDataObj);
 			actualRating = testPosDataObj.getRating();
-			
+
 			System.out.println("Review: " + testPosDataObj.getReview());
 			System.out.println("Rating: " + rating);
 			System.out.println("Actual Rating: " + actualRating);
 			System.out.println();
-			
+
 			if(actualRating.equals(rating))
 				numerator++;
-			
+
 			denominator++;
 
 		}//end testing for loop
@@ -173,10 +155,7 @@ public class testPosKNN {
 		System.out.println("Numerator: " + numerator);
 		System.out.println("Denominator: " + denominator);
 		System.out.println("Accuracy: " + (numerator/denominator));
-		
-//		System.out.println("ReadTrainingCount: " + readTrainingCount);
-//		System.out.println("ReadValidationCount: " + readValidationCount);
-//		System.out.println("trainingMapSize: " + trainingMap.size());
+
 	}
 
 	private String computeKNN(posData testPosDataObj){
