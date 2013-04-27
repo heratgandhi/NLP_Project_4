@@ -30,7 +30,7 @@ class NGramsTuple extends Tuple {
 }
 
 public class WordNGramKNN {
-	public static int N = 3;
+	public static int N = 2;
 	public static int K = 3;
 	
 	public static void main(String[] args) {
@@ -132,12 +132,18 @@ public class WordNGramKNN {
 						ovotes++;
 					}
 				}
-				if(ovotes > zvotes) {
-					System.out.println("1");
-					bwt.write("1\n");
-				} else {
+				if(line.indexOf("-") != -1 && line.indexOf("-") < 40) {
 					System.out.println("0");
 					bwt.write("0\n");
+				}
+				else {
+					if(ovotes > zvotes) {
+						System.out.println("1");
+						bwt.write("1\n");
+					} else {
+						System.out.println("0");
+						bwt.write("0\n");
+					}
 				}
 			}
 			bwt.close();

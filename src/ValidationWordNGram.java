@@ -2,8 +2,8 @@ import java.io.*;
 import java.util.*;
 
 public class ValidationWordNGram {
-	public static int N = 2;
-	public static int K = 3;
+	public static int N = 10;
+	public static int K = 17;
 	
 	public static void main(String[] args) {
 		try {
@@ -108,16 +108,22 @@ public class ValidationWordNGram {
 					}
 				}
 				if(ovotes > zvotes) {
-					System.out.println("1");
+					
 					bwt.write("1\n");
 					if(Integer.parseInt(line.split(",")[0]) == 1) {
+						System.out.println(total + " 1");
 						correctop++;
+					} else {
+						System.out.println(total + " Expected 0 got 1");
 					}
 				} else {
-					System.out.println("0");
+					
 					bwt.write("0\n");
 					if(Integer.parseInt(line.split(",")[0]) == 0) {
+						System.out.println(total + " 0");
 						correctop++;
+					} else {
+						System.out.println(total + " Expected 1 got 0");
 					}
 				}
 				total++;

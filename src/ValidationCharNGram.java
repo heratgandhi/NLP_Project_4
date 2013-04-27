@@ -2,8 +2,8 @@ import java.io.*;
 import java.util.*;
 
 public class ValidationCharNGram {
-	public static int N = 3;
-	public static int K = 3;
+	public static int N = 1;
+	public static int K = 17;
 	
 	public static void main(String[] args) {
 		try {
