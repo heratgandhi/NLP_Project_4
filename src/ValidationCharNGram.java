@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 
 public class ValidationCharNGram {
-	public static int N = 1;
+	public static int N = 2;
 	public static int K = 17;
 	
 	public static void main(String[] args) {
@@ -94,9 +94,9 @@ public class ValidationCharNGram {
 					    String key = enumKey.nextElement();
 					    Integer value = test_dict.get(key);
 					    if(t.ngrams_hash.get(key) != null) {
-					    	distance += Math.pow(value - t.ngrams_hash.get(key), 2);
+					    	distance += Math.abs(value - t.ngrams_hash.get(key));
 					    } else {
-					    	distance += Math.pow(value, 2);
+					    	distance += Math.abs(value);
 					    }
 					}
 					distance = Math.sqrt(distance);

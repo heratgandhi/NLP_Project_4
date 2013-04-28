@@ -123,9 +123,9 @@ public class CharacterNGramKNN {
 					    String key = enumKey.nextElement();
 					    Integer value = test_dict.get(key);
 					    if(t.ngrams_hash.get(key) != null) {
-					    	distance += Math.pow(value - t.ngrams_hash.get(key), 2);
+					    	distance += Math.abs(value - t.ngrams_hash.get(key));
 					    } else {
-					    	distance += Math.pow(value, 2);
+					    	distance += Math.abs(value);
 					    }
 					}
 					distance = Math.sqrt(distance);

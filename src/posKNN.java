@@ -152,10 +152,10 @@ public class posKNN {
 			trainingAdjectiveCount = trainingObj.getAdjectiveCount();
 
 			//Taking weighted sums: 40, 40, 20 for adverbs, adjectives, verbs respectively
-			distance = 0.4 * Math.pow((adverbCount - trainingAdverbCount), 2);
-			distance += 0.4 * Math.pow((adjectiveCount - trainingAdjectiveCount), 2);
-			distance += 0.2 * Math.pow((verbCount - trainingVerbCount), 2);
-			distance = Math.sqrt(distance);
+			distance = 0.4 * Math.abs((adverbCount - trainingAdverbCount));
+			distance += 0.4 * Math.abs((adjectiveCount - trainingAdjectiveCount));
+			distance += 0.2 * Math.abs((verbCount - trainingVerbCount));
+			//distance = Math.sqrt(distance);
 
 			distanceMap.put(trainingObj, distance);
 
