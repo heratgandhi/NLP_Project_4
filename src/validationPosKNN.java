@@ -9,7 +9,9 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 public class validationPosKNN {
 
+
 	public static int K = 5;
+
 	private MaxentTagger tagger;
 	private String sample, tagged, token, tag, review, rating, actualRating;
 	private FileInputStream fstream;
@@ -57,9 +59,6 @@ public class validationPosKNN {
 				rating = sample.substring(0,1);
 				review = sample.substring(4);
 				tagged = tagger.tagString(review);
-
-				//System.out.println("Review: " + review);
-				//System.out.println("Tagged: " + tagged);
 				
 				posDataObj = processTags(tagged, rating, review);
 				trainingMap.put(review, posDataObj);
@@ -153,10 +152,20 @@ public class validationPosKNN {
 			trainingAdjectiveCount = trainingObj.getAdjectiveCount();
 
 			//Taking weighted sums: 40, 40, 20 for adverbs, adjectives, verbs respectively
-			distance = 0.4 * Math.abs((adverbCount - trainingAdverbCount));
-			distance += 0.4 * Math.abs((adjectiveCount - trainingAdjectiveCount));
-			distance += 0.2 * Math.abs((verbCount - trainingVerbCount));
-			//distance = Math.sqrt(distance);
+			distance = 0.4 * Math.pow((adverbCount - trainingAdverbCount), 2);
+			distance += 0.4 * Math.pow((adjectiveCount - trainingAdjectiveCount), 2);
+			distance += 0.2 * Math.pow((verbCount - trainingVerbCount), 2);
+			distance = Math.sqrt(distance);
+			
+			distance = Math.pow((adverbCount - trainingAdverbCount), 2);
+			distance += Math.pow((adjectiveCount - trainingAdjectiveCount), 2);
+			distance += Math.pow((verbCount - trainingVerbCount), 2);
+			distance = Math.sqrt(distance);
+
+//			distance = 0.4 * Math.abs((adverbCount - trainingAdverbCount));
+//			distance += 0.4 * Math.abs((adjectiveCount - trainingAdjectiveCount));
+//			distance += 0.2 * Math.abs((verbCount - trainingVerbCount));
+
 
 			distanceMap.put(trainingObj, distance);
 
