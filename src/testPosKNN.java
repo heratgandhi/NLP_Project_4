@@ -7,27 +7,33 @@ import java.util.StringTokenizer;
 
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
-public class posKNN {
+public class testPosKNN {
 
 	public static int K = 3;
 	private MaxentTagger tagger;
-	private String sample, tagged, token, tag, review;
+	private String sample, tagged, token, tag, review, rating, actualRating;
 	private FileInputStream fstream;
 	private DataInputStream in;
 	private BufferedReader br;
-	private HashMap<String, posData> trainingMap, testingMap;
-	private String[] parts;
+	private HashMap<String, posData> trainingMap, testMap;
 	private posData posDataObj, tempObj, trainingObj;
 	private StringTokenizer tokenizer;
 	private int verbCount, adverbCount, adjectiveCount, trainingVerbCount, 
-	trainingAdverbCount, trainingAdjectiveCount;
+	trainingAdverbCount, trainingAdjectiveCount, readTrainingCount, readValidationCount;
 	private double distance;
 	private HashMap<posData, Double> distanceMap;
+	private double numerator, denominator;
+	private FileWriter fw;
 
-	public posKNN(){
+	public testPosKNN(){
 		tagger = new MaxentTagger("taggers/english-left3words-distsim.tagger");
 		trainingMap = new HashMap<String, posData>();
-		testingMap = new HashMap<String, posData>();
+		testMap = new HashMap<String, posData>();
+		numerator = 0;
+		denominator = 0;
+		readTrainingCount = 0;
+		readValidationCount = 0;
+
 		tag();
 	}
 
@@ -35,24 +41,25 @@ public class posKNN {
 
 		trainModel();
 		testModel();
-		processTestData();
+
 	}
 
 	private void trainModel(){
 
 		try {
-			fstream = new FileInputStream("my_training_file");
-
+			fstream = new FileInputStream("traind");
 			in = new DataInputStream(fstream);
 			br = new BufferedReader(new InputStreamReader(in));
 
 			while((sample=br.readLine()) != null) {
-				parts = sample.split(";");
-				parts[1] = parts[1].replaceAll("\"", "").toLowerCase();
-				tagged = tagger.tagString(sample);
+				rating = sample.substring(0,1);
+				review = sample.substring(4);
+				tagged = tagger.tagString(review);
 
-				posDataObj = processTags(tagged, parts[0], parts[1]);
-				trainingMap.put(parts[1], posDataObj);
+				posDataObj = processTags(tagged, rating, review);
+				trainingMap.put(review, posDataObj);
+
+				readTrainingCount++;
 			}
 
 			br.close();
@@ -88,23 +95,29 @@ public class posKNN {
 	private void testModel(){
 
 		try {
-			fstream = new FileInputStream("my_test_file");
-
+			fstream = new FileInputStream("testd");
 			in = new DataInputStream(fstream);
 			br = new BufferedReader(new InputStreamReader(in));
+			fw = new FileWriter("posTags.txt");
+
+			actualRating = "";
 
 			while((sample=br.readLine()) != null) {
 
-				review = sample.substring(sample.indexOf(';')+1);
-				review = review.replace("\"", "").toLowerCase();
-
+				review = sample.substring(4);
 				tagged = tagger.tagString(review);
 
-				posDataObj = processTags(tagged, "", review);
-				testingMap.put(review, posDataObj);
+				posDataObj = processTags(tagged, actualRating, review);
+				testMap.put(review, posDataObj);
+
+				rating = computeKNN(posDataObj);
+				fw.write(rating + "\n");
+
 			}
 
 			br.close();
+			fw.close();
+
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -119,21 +132,30 @@ public class posKNN {
 
 		posData testPosDataObj;
 		String rating;
-		int counter = 0;
 
-		for(Entry<String, posData> testEntry : testingMap.entrySet()){
+		for(Entry<String, posData> testEntry : testMap.entrySet()){
 
 			testPosDataObj = testEntry.getValue();
 			rating = computeKNN(testPosDataObj);
+			actualRating = testPosDataObj.getRating();
 
 			System.out.println("Review: " + testPosDataObj.getReview());
 			System.out.println("Rating: " + rating);
+			System.out.println("Actual Rating: " + actualRating);
 			System.out.println();
-			counter++;
+
+			if(actualRating.equals(rating))
+				numerator++;
+
+			denominator++;
 
 		}//end testing for loop
-		
-		System.out.println("Review count: " + counter);
+
+		System.out.println("Review count: " + testMap.size());
+		System.out.println("Numerator: " + numerator);
+		System.out.println("Denominator: " + denominator);
+		System.out.println("Accuracy: " + (numerator/denominator));
+
 	}
 
 	private String computeKNN(posData testPosDataObj){
@@ -152,10 +174,10 @@ public class posKNN {
 			trainingAdjectiveCount = trainingObj.getAdjectiveCount();
 
 			//Taking weighted sums: 40, 40, 20 for adverbs, adjectives, verbs respectively
-			distance = 0.4 * Math.abs((adverbCount - trainingAdverbCount));
-			distance += 0.4 * Math.abs((adjectiveCount - trainingAdjectiveCount));
-			distance += 0.2 * Math.abs((verbCount - trainingVerbCount));
-			//distance = Math.sqrt(distance);
+			distance = 0.4 * Math.pow((adverbCount - trainingAdverbCount), 2);
+			distance += 0.4 * Math.pow((adjectiveCount - trainingAdjectiveCount), 2);
+			distance += 0.2 * Math.pow((verbCount - trainingVerbCount), 2);
+			distance = Math.sqrt(distance);
 
 			distanceMap.put(trainingObj, distance);
 
@@ -213,6 +235,6 @@ public class posKNN {
 
 	public static void main(String[] args){
 
-		posKNN knn = new posKNN();
+		testPosKNN knn = new testPosKNN();
 	}
 }

@@ -9,7 +9,9 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 public class validationPosKNN {
 
-	public static int K = 3;
+
+	public static int K = 5;
+
 	private MaxentTagger tagger;
 	private String sample, tagged, token, tag, review, rating, actualRating;
 	private FileInputStream fstream;
@@ -23,6 +25,7 @@ public class validationPosKNN {
 	private double distance;
 	private HashMap<posData, Double> distanceMap;
 	private double numerator, denominator;
+	private FileWriter fw;
 
 	public validationPosKNN(){
 		tagger = new MaxentTagger("taggers/english-left3words-distsim.tagger");
@@ -38,29 +41,28 @@ public class validationPosKNN {
 
 		trainModel();
 		validationModel();
-		processValidationData();
+		
+		System.out.println("Numerator: " + numerator);
+		System.out.println("Denominator: " + denominator);
+		System.out.println("Accuracy: " + (numerator/denominator));
+
 	}
 
 	private void trainModel(){
 
 		try {
-			fstream = new FileInputStream("Train data");
-
+			fstream = new FileInputStream("traind");
 			in = new DataInputStream(fstream);
 			br = new BufferedReader(new InputStreamReader(in));
-
-			br.readLine();
 
 			while((sample=br.readLine()) != null) {
 				rating = sample.substring(0,1);
 				review = sample.substring(4);
 				tagged = tagger.tagString(review);
-
-				//System.out.println("Review: " + review);
-				//System.out.println("Tagged: " + tagged);
 				
 				posDataObj = processTags(tagged, rating, review);
 				trainingMap.put(review, posDataObj);
+	
 			}
 
 			br.close();
@@ -96,28 +98,33 @@ public class validationPosKNN {
 	private void validationModel(){
 
 		try {
-			fstream = new FileInputStream("Validation data");
-
+			fstream = new FileInputStream("validationd");
 			in = new DataInputStream(fstream);
 			br = new BufferedReader(new InputStreamReader(in));
-
-			br.readLine();
+			fw = new FileWriter("posTags.txt");
 
 			while((sample=br.readLine()) != null) {
 
-				rating = sample.substring(0,1);
+				actualRating = sample.substring(0,1);
 				review = sample.substring(4);
 				tagged = tagger.tagString(review);
-				
-				//System.out.println("Review: " + review);
-				//System.out.println("Tagged: " + tagged);
 
-				posDataObj = processTags(tagged, rating, review);
+				posDataObj = processTags(tagged, actualRating, review);
 				validationMap.put(review, posDataObj);
 
+				rating = computeKNN(posDataObj);
+				fw.write(rating + "\n");
+				
+				if(actualRating.equals(rating))
+					numerator++;
+				
+				denominator++;
+				
 			}
 
 			br.close();
+			fw.close();
+			
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -128,36 +135,6 @@ public class validationPosKNN {
 
 	}
 
-	private void processValidationData(){
-
-		posData validationPosDataObj;
-		String rating;
-		int counter = 0;
-
-		for(Entry<String, posData> testEntry : validationMap.entrySet()){
-
-			validationPosDataObj = testEntry.getValue();
-			rating = computeKNN(validationPosDataObj);
-			actualRating = validationPosDataObj.getRating();
-			
-			System.out.println("Review: " + validationPosDataObj.getReview());
-			System.out.println("Rating: " + rating);
-			System.out.println("Actual Rating: " + actualRating);
-			System.out.println();
-			counter++;
-			
-			if(actualRating.equals(rating))
-				numerator++;
-			
-			denominator++;
-
-		}//end testing for loop
-
-		System.out.println("Review count: " + counter);
-		System.out.println("Numerator: " + numerator);
-		System.out.println("Denominator: " + denominator);
-		System.out.println("Accuracy: " + (numerator/denominator));
-	}
 
 	private String computeKNN(posData testPosDataObj){
 
@@ -179,6 +156,16 @@ public class validationPosKNN {
 			distance += 0.4 * Math.pow((adjectiveCount - trainingAdjectiveCount), 2);
 			distance += 0.2 * Math.pow((verbCount - trainingVerbCount), 2);
 			distance = Math.sqrt(distance);
+			
+			distance = Math.pow((adverbCount - trainingAdverbCount), 2);
+			distance += Math.pow((adjectiveCount - trainingAdjectiveCount), 2);
+			distance += Math.pow((verbCount - trainingVerbCount), 2);
+			distance = Math.sqrt(distance);
+
+//			distance = 0.4 * Math.abs((adverbCount - trainingAdverbCount));
+//			distance += 0.4 * Math.abs((adjectiveCount - trainingAdjectiveCount));
+//			distance += 0.2 * Math.abs((verbCount - trainingVerbCount));
+
 
 			distanceMap.put(trainingObj, distance);
 

@@ -132,12 +132,18 @@ public class WordNGramKNN {
 						ovotes++;
 					}
 				}
-				if(ovotes > zvotes) {
-					System.out.println("1");
-					bwt.write("1\n");
-				} else {
+				if(line.indexOf("-") != -1 && line.indexOf("-") < 40) {
 					System.out.println("0");
 					bwt.write("0\n");
+				}
+				else {
+					if(ovotes > zvotes) {
+						System.out.println("1");
+						bwt.write("1\n");
+					} else {
+						System.out.println("0");
+						bwt.write("0\n");
+					}
 				}
 			}
 			bwt.close();

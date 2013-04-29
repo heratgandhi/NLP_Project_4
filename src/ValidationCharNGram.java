@@ -1,41 +1,9 @@
 import java.io.*;
 import java.util.*;
 
-class CharNGramsTuple extends Tuple {
-
-	Hashtable<String,Integer> ngrams_hash;
-	
-	CharNGramsTuple(String rating, String review) {
-		super(rating, review);
-		
-		//put ngrams with counter in the hashtable
-		String[] words;
-		String ngram;
-		words = review.split(" ");
-		ngrams_hash = new Hashtable<String, Integer>();
-		for(int i=0;i<words.length;i++) {
-			for(int l=0 ; l <= words[i].length()-CharacterNGramKNN.N ; l++) {
-				ngram = "";
-				for(int j=l ;j < l+CharacterNGramKNN.N ; j++) {
-					ngram += "" + words[i].charAt(j);
-				}
-				if(ngram.trim() != "" && ngram.length() == CharacterNGramKNN.N) {
-					if(ngrams_hash.get(ngram) == null) {
-						ngrams_hash.put(ngram, 1);
-					} else {
-						ngrams_hash.put(ngram, ngrams_hash.get(ngram)+1);
-					}
-				}
-			}					
-		}
-		// TODO Auto-generated constructor stub
-	}
-	
-}
-
-public class CharacterNGramKNN {
-	public static int N = 3;
-	public static int K = 3;
+public class ValidationCharNGram {
+	public static int N = 2;
+	public static int K = 17;
 	
 	public static void main(String[] args) {
 		try {
@@ -63,8 +31,8 @@ public class CharacterNGramKNN {
 				}
 			}*/
 			//Testing Portion
-			BufferedReader brt = new BufferedReader(new FileReader("testd"));
-			BufferedWriter bwt = new BufferedWriter(new FileWriter("charncount_output"));
+			BufferedReader brt = new BufferedReader(new FileReader("validationd"));
+			BufferedWriter bwt = new BufferedWriter(new FileWriter("charncount_output_valid"));
 			
 			String review = "";
 			double[] max = new double[K];
@@ -79,6 +47,9 @@ public class CharacterNGramKNN {
 			int k_cnt;
 			
 			for(ii=0;ii<K;ii++) val[ii] = "";
+			
+			int correctop = 0;
+			int total = 0;
 
 			while((line=brt.readLine()) != null) {
 				review = line.split(",")[2];
@@ -162,11 +133,19 @@ public class CharacterNGramKNN {
 				if(ovotes > zvotes) {
 					bwt.write("1\n");
 					System.out.println("1");
+					if(Integer.parseInt(line.split(",")[0]) == 1) {
+						correctop++;
+					}
 				} else {
 					bwt.write("0\n");
 					System.out.println("0");
+					if(Integer.parseInt(line.split(",")[0]) == 0) {
+						correctop++;
+					}
 				}
+				total++;
 			}
+			System.out.println(correctop/(float)total);
 			bwt.close();
 			brt.close();
 		} catch(Exception e) {
