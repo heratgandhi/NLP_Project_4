@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.regex.Pattern;
 
 
 public class OutputForKaggle 
@@ -22,27 +23,26 @@ public class OutputForKaggle
 		String line="";
 		String words[];
 		line=br.readLine();
-//		while((line=br.readLine())!=null)
-//		{
-//			//words=line.split("");
-//			String sign=line.substring(0,1);
-//			System.out.println(sign);
-//			String signmid;
-//			if(sign.equals("-"))
-//			{
-//				signmid="0";
-//				//signmid=sign.replace('0', '1');
-//				//sign="-"+signmid;
-//			}
-//			else
-//			{
-//				signmid="1";
-//			}
-//			pw.println(sign);
-//			//System.out.println(words.length);
-//
-//		}
-		System.out.println(line.charAt(0));
+		while((line=br.readLine())!=null)
+		{
+			//words=line.split("");
+			String sign=line.substring(0,1);
+			System.out.println(sign);
+			String signmid;
+			if(sign.equals("-"))
+			{
+				signmid="0";
+				//signmid=sign.replace('0', '1');
+				//sign="-"+signmid;
+			}
+			else
+			{
+				signmid="1";
+			}
+			pw.println(sign);
+			//System.out.println(words.length);
+
+		}
 	}
 	public static void main(String args[]) throws IOException
 	{
