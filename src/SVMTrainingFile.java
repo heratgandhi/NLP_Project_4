@@ -28,8 +28,7 @@ public class SVMTrainingFile
 	HashMap<String, Integer> posTagAdverbs=new HashMap<String, Integer>();
 	FileReader fr,fr1,fr2;
 	BufferedReader br,br1;
-	private int N=1;
-
+	
 	public void readTrainingFile(String filename) throws IOException
 	{
 
@@ -39,13 +38,7 @@ public class SVMTrainingFile
 		String review="",review1="",review2="",review3="",review4="";
 		String[] words_unigram, words_bigram, words_char_tetragram, words_char_pentagram,words_postag;
 		String unigram="", bigram="", char_tetragram="", char_pentagram="", postagstr="";
-		int cnt;
-		int m;
-		int uni_id=0;
-		int bi_id=0;
-		int uni_char_id=0;
-		int bi_char_id=0;
-		int pos_id=0;
+		
 		while((line=br.readLine())!=null)
 		{
 			review = line.substring(line.indexOf(',')+3);
