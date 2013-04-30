@@ -3,7 +3,7 @@ import java.util.*;
 
 public class ValidationCharNGram {
 	public static int N = 2;
-	public static int K = 17;
+	public static int K = 3;
 	
 	public static void main(String[] args) {
 		try {
@@ -50,6 +50,10 @@ public class ValidationCharNGram {
 			
 			int correctop = 0;
 			int total = 0;
+			int correctone = 0;
+			int correctzero = 0;
+			int totalone = 0;
+			int totalzero = 0;
 
 			while((line=brt.readLine()) != null) {
 				review = line.split(",")[2];
@@ -124,7 +128,7 @@ public class ValidationCharNGram {
 				ovotes = 0;
 				for(ii=0;ii<K;ii++) {
 					if(val[ii].equals("0") || val[ii].equals("")) { 
-						zvotes++;
+						zvotes++;						
 					}
 					else { 
 						ovotes++;
@@ -134,6 +138,7 @@ public class ValidationCharNGram {
 					bwt.write("1\n");
 					System.out.println("1");
 					if(Integer.parseInt(line.split(",")[0]) == 1) {
+						correctone++;
 						correctop++;
 					}
 				} else {
@@ -141,11 +146,17 @@ public class ValidationCharNGram {
 					System.out.println("0");
 					if(Integer.parseInt(line.split(",")[0]) == 0) {
 						correctop++;
+						correctzero++;
 					}
 				}
 				total++;
+				if(Integer.parseInt(line.split(",")[0]) == 0)
+					totalzero++;
+				else
+					totalone++;
 			}
-			System.out.println(correctop/(float)total);
+			System.out.println("Y:" + correctone/(float)totalone);
+			System.out.println("X:" + correctzero/(float)totalzero);
 			bwt.close();
 			brt.close();
 		} catch(Exception e) {

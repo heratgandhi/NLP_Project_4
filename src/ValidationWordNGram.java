@@ -3,7 +3,7 @@ import java.util.*;
 
 public class ValidationWordNGram {
 	public static int N = 2;
-	public static int K = 17;
+	public static int K = 79;
 	
 	public static void main(String[] args) {
 		try {
@@ -42,6 +42,10 @@ public class ValidationWordNGram {
 			
 			int correctop = 0;
 			int total = 0;
+			int correctone = 0;
+			int correctzero = 0;
+			int totalzero = 0;
+			int totalone = 0;
 
 			while((line=brt.readLine()) != null) {
 				review = line.split(",")[2];
@@ -113,6 +117,7 @@ public class ValidationWordNGram {
 					if(Integer.parseInt(line.split(",")[0]) == 1) {
 						System.out.println(total + " 1");
 						correctop++;
+						correctone++;
 					} else {
 						System.out.println(total + " Expected 0 got 1");
 					}
@@ -122,13 +127,19 @@ public class ValidationWordNGram {
 					if(Integer.parseInt(line.split(",")[0]) == 0) {
 						System.out.println(total + " 0");
 						correctop++;
+						correctzero++;
 					} else {
 						System.out.println(total + " Expected 1 got 0");
 					}
 				}
 				total++;
+				if(Integer.parseInt(line.split(",")[0]) == 0)
+					totalzero++;
+				else
+					totalone++;
 			}
-			System.out.println(correctop/(float)total);
+			System.out.println("Y:" + correctone/(float)totalone);
+			System.out.println("X:" + correctzero/(float)totalzero);
 			bwt.close();
 			brt.close();			
 		} catch(Exception e) {
