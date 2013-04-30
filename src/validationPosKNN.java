@@ -10,7 +10,7 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 public class validationPosKNN {
 
 
-	public static int K = 5;
+	public static int K = 79;
 
 	private MaxentTagger tagger;
 	private String sample, tagged, token, tag, review, rating, actualRating;
@@ -157,15 +157,9 @@ public class validationPosKNN {
 			distance += 0.2 * Math.pow((verbCount - trainingVerbCount), 2);
 			distance = Math.sqrt(distance);
 			
-			distance = Math.pow((adverbCount - trainingAdverbCount), 2);
-			distance += Math.pow((adjectiveCount - trainingAdjectiveCount), 2);
-			distance += Math.pow((verbCount - trainingVerbCount), 2);
-			distance = Math.sqrt(distance);
-
 //			distance = 0.4 * Math.abs((adverbCount - trainingAdverbCount));
 //			distance += 0.4 * Math.abs((adjectiveCount - trainingAdjectiveCount));
 //			distance += 0.2 * Math.abs((verbCount - trainingVerbCount));
-
 
 			distanceMap.put(trainingObj, distance);
 

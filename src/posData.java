@@ -1,4 +1,4 @@
-
+ 
 public class posData {
 
 	private String rating, review;
